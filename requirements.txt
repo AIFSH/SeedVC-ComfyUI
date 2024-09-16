@@ -1,0 +1,8 @@
+scipy==1.13.1
+onnxruntime-gpu==1.19.0
+librosa==0.10.2
+huggingface-hub
+munch
+einops
+descript-audio-codec
+git+https://github.com/openai/whisper.git
