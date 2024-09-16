@@ -27,12 +27,14 @@ class SeedVCNode:
             snapshot_download(repo_id="funasr/campplus",local_dir=campplus_dir)
 
         self.model = None
+        self.speech_tokenizer_type = "cosyvoice"
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required":{
                 "source":("AUDIO",),
                 "target":("AUDIO",),
+                "speech_tokenizer_type":(["cosyvoice","facodec"],),
                 "diffusion_steps":("INT",{
                     "default": 10
                 }),
@@ -68,13 +70,37 @@ class SeedVCNode:
         print(f"from {sr} to {target_sr}")
         return waveform.numpy()[0]
 
-    def gen_audio(self,source,target,diffusion_steps,length_adjust,
-                  inference_cfg_rate,n_quantizers):
+    def gen_audio(self,source,target,speech_tokenizer_type,diffusion_steps,
+                  length_adjust,inference_cfg_rate,n_quantizers):
         # Load model and configuration
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # dit_config_path = os.path.join(seedvc_dir,"config_dit_mel_seed_facodec_small_wavenet.yml")
-        if self.model is None:
+        if speech_tokenizer_type == "facodec":
+            dit_config_path = os.path.join(seedvc_dir,"config_dit_mel_seed_facodec_small_wavenet.yml")
+            dit_checkpoint_path = os.path.join(seedvc_dir,"DiT_step_298000_seed_uvit_facodec_small_wavenet_pruned.pth")
+            config_path = os.path.join(facodec_dir,"config.yml")
+            ckpt_path = os.path.join(facodec_dir, 'pytorch_model.bin')
+
+            codec_config = yaml.safe_load(open(config_path,"r"))
+            codec_model_params = recursive_munch(codec_config['model_params'])
+            codec_encoder = build_model(codec_model_params, stage="codec")
+
+            ckpt_params = torch.load(ckpt_path, map_location="cpu")
+
+            for key in codec_encoder:
+                codec_encoder[key].load_state_dict(ckpt_params[key], strict=False)
+            _ = [codec_encoder[key].eval() for key in codec_encoder]
+            _ = [codec_encoder[key].to(device) for key in codec_encoder]
+            self.codec_encoder = codec_encoder
+        else:
             dit_config_path = os.path.join(seedvc_dir,"config_dit_mel_seed_wavenet.yml")
+            dit_checkpoint_path = os.path.join(seedvc_dir,"DiT_step_315000_seed_v2_wavenet_online_pruned.pth")
+            from seedvc.modules.cosyvoice_tokenizer.frontend import CosyVoiceFrontEnd
+            speech_tokenizer_path = os.path.join(seedvc_dir, "speech_tokenizer_v1.onnx")
+            self.cosyvoice_frontend = CosyVoiceFrontEnd(speech_tokenizer_model=speech_tokenizer_path,
+                                                device='cuda', device_id=0)
+
+        if self.model is None or self.speech_tokenizer_type != speech_tokenizer_type:
             config = yaml.safe_load(open(dit_config_path, 'r'))
             model_params = recursive_munch(config['model_params'])
             model = build_model(model_params, stage='DiT')
@@ -82,7 +108,6 @@ class SeedVCNode:
             self.sr = config['preprocess_params']['sr']
 
             # Load checkpoints
-            dit_checkpoint_path = os.path.join(seedvc_dir,"DiT_step_315000_seed_v2_wavenet_online_pruned.pth")
             # dit_checkpoint_path = os.path.join(seedvc_dir,"DiT_step_298000_seed_uvit_facodec_small_wavenet_pruned.pth")
             self.model, _, _, _ = load_checkpoint(model, None, dit_checkpoint_path,
                                             load_only_params=True, ignore_modules=[], is_distributed=False)
@@ -110,11 +135,6 @@ class SeedVCNode:
             self.hift_gen.load_state_dict(torch.load(hift_checkpoint_path, map_location='cpu'))
             self.hift_gen.eval()
             self.hift_gen.to(device)
-
-            from seedvc.modules.cosyvoice_tokenizer.frontend import CosyVoiceFrontEnd
-            speech_tokenizer_path = os.path.join(seedvc_dir, "speech_tokenizer_v1.onnx")
-            self.cosyvoice_frontend = CosyVoiceFrontEnd(speech_tokenizer_model=speech_tokenizer_path,
-                                                device='cuda', device_id=0)
             
             # Generate mel spectrograms
             mel_fn_args = {
@@ -131,6 +151,9 @@ class SeedVCNode:
 
             self.to_mel = lambda x: mel_spectrogram(x, **mel_fn_args)
 
+            self.speech_tokenizer_type = speech_tokenizer_type
+
+
         sr = self.sr
         source_audio = self.cfy2librosa(source,sr)
         ref_audio = self.cfy2librosa(target,sr)
@@ -146,43 +169,67 @@ class SeedVCNode:
 
         print(f"from {sr} to 16000")
         with torch.no_grad():
-            S_alt = [
-                self.cosyvoice_frontend.extract_speech_token(source_waves_16k, )
-            ]
-            S_alt_lens = torch.LongTensor([s[1] for s in S_alt]).to(device)
-            S_alt = torch.cat([torch.nn.functional.pad(s[0], (0, max(S_alt_lens) - s[0].size(1))) for s in S_alt], dim=0)
+            if self.speech_tokenizer_type == "facodec":
+                converted_waves_24k = torchaudio.functional.resample(source_audio, sr, 24000)
+                wave_lengths_24k = torch.LongTensor([converted_waves_24k.size(1)]).to(converted_waves_24k.device)
+                waves_input = converted_waves_24k.unsqueeze(1)
+                z = self.codec_encoder.encoder(waves_input)
+                (
+                    quantized,
+                    codes
+                ) = self.codec_encoder.quantizer(
+                    z,
+                    waves_input,
+                )
+                S_alt = torch.cat([codes[1], codes[0]], dim=1)
 
-            S_ori = [
-                self.cosyvoice_frontend.extract_speech_token(ref_waves_16k, )
-            ]
-            S_ori_lens = torch.LongTensor([s[1] for s in S_ori]).to(device)
-            S_ori = torch.cat([torch.nn.functional.pad(s[0], (0, max(S_ori_lens) - s[0].size(1))) for s in S_ori], dim=0)
+                # S_ori should be extracted in the same way
+                waves_24k = torchaudio.functional.resample(ref_audio, sr, 24000)
+                waves_input = waves_24k.unsqueeze(1)
+                z = self.codec_encoder.encoder(waves_input)
+                (
+                    quantized,
+                    codes
+                ) = self.codec_encoder.quantizer(
+                    z,
+                    waves_input,
+                )
+                S_ori = torch.cat([codes[1], codes[0]], dim=1)
+            else:
+                S_alt = [
+                    self.cosyvoice_frontend.extract_speech_token(source_waves_16k, )
+                ]
+                S_alt_lens = torch.LongTensor([s[1] for s in S_alt]).to(device)
+                S_alt = torch.cat([torch.nn.functional.pad(s[0], (0, max(S_alt_lens) - s[0].size(1))) for s in S_alt], dim=0)
+
+                S_ori = [
+                    self.cosyvoice_frontend.extract_speech_token(ref_waves_16k, )
+                ]
+                S_ori_lens = torch.LongTensor([s[1] for s in S_ori]).to(device)
+                S_ori = torch.cat([torch.nn.functional.pad(s[0], (0, max(S_ori_lens) - s[0].size(1))) for s in S_ori], dim=0)
 
             mel = self.to_mel(source_audio.to(device).float())
             mel2 = self.to_mel(ref_audio.to(device).float())
 
-            target = mel
-            target2 = mel2
+            target_lengths = torch.LongTensor([int(mel.size(2) * length_adjust)]).to(mel.device)
+            target2_lengths = torch.LongTensor([mel2.size(2)]).to(mel2.device)
 
-            target_lengths = torch.LongTensor([int(target.size(2) * length_adjust)]).to(target.device)
-            target2_lengths = torch.LongTensor([target2.size(2)]).to(target2.device)
-
-            feat2 = kaldi.fbank(ref_waves_16k,
-                                num_mel_bins=80,
-                                dither=0,
-                                sample_frequency=16000)
+            feat2 = torchaudio.compliance.kaldi.fbank(ref_waves_16k,
+                                                    num_mel_bins=80,
+                                                    dither=0,
+                                                    sample_frequency=16000)
             feat2 = feat2 - feat2.mean(dim=0, keepdim=True)
             style2 = self.campplus_model(feat2.unsqueeze(0))
 
-            # print(target_lengths.shape)
-            cond = self.model.length_regulator(S_alt, ylens=target_lengths)[0]
-            prompt_condition = self.model.length_regulator(S_ori, ylens=target2_lengths)[0]
+            # Length regulation
+            cond = self.model.length_regulator(S_alt, ylens=target_lengths, n_quantizers=int(n_quantizers))[0]
+            prompt_condition = self.model.length_regulator(S_ori, ylens=target2_lengths, n_quantizers=int(n_quantizers))[0]
             cat_condition = torch.cat([prompt_condition, cond], dim=1)
-            prompt_target = target2
+            
 
             time_vc_start = time.time()
-            vc_target = self.model.cfm.inference(cat_condition, torch.LongTensor([cat_condition.size(1)]).to(prompt_target.device), prompt_target, style2, None, diffusion_steps, inference_cfg_rate=inference_cfg_rate)
-            vc_target = vc_target[:, :, prompt_target.size(-1):]
+            vc_target = self.model.cfm.inference(cat_condition, torch.LongTensor([cat_condition.size(1)]).to(mel2.device), mel2, style2, None, diffusion_steps, inference_cfg_rate=inference_cfg_rate)
+            vc_target = vc_target[:, :, mel2.size(-1):]
             vc_wave = self.hift_gen.inference(vc_target)
             time_vc_end = time.time()
             print(f"RTF: {(time_vc_end - time_vc_start) / vc_wave.size(-1) * sr}")
