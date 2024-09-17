@@ -2,7 +2,8 @@
 a custom node for [seed-vc](https://github.com/Plachtaa/seed-vc),you can find [workflow](./doc/变声器_workflow.json)
 
 ## 教程
-- [Demo]()
+- [Demo](https://b23.tv/IfDHZ9w)
+- [一键包](https://b23.tv/QFgmoXM)
 
 ## Example
 |source|reference|output|
