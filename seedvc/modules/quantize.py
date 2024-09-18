@@ -1,4 +1,4 @@
-from ..dac.nn.quantize import ResidualVectorQuantize
+from dac.nn.quantize import ResidualVectorQuantize
 from torch import nn
 from .wavenet import WN
 import torch
