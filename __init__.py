@@ -326,9 +326,10 @@ class SeedVC4SingNode:
                         waves.append(silent_wave)
                 except:
                     print(f"{chunk_duration} > 30s can't get fake, slient replace")
+                    torchaudio.save(f"{i}_temp.wav",torch.tensor(source_audio[start:end]).unsqueeze(0),sr)
                     silent_wave = np.zeros((1,end-start))
                     waves.append(silent_wave)
-                    traceback.print_exc()
+                    # traceback.print_exc()
 
                 if i == len(chunks) - 1 and source_audio.shape[0]>end:
                     silent_wave = np.zeros((1,source_audio.shape[0]-end))
@@ -338,7 +339,7 @@ class SeedVC4SingNode:
             # print(vc_wave.shape)
             # assert vc_wave.shape[-1] == source_audio.shape[0], f"{vc_wave.shape} not = {source_audio.shape}"
             res_audio = {
-                "waveform": torch.tensor(vc_wave).unsqueeze(0),
+                "waveform": torch.FloatTensor(vc_wave).unsqueeze(0),
                 "sample_rate": sr
             }
         else:
