@@ -1,7 +1,178 @@
 {
-  "last_node_id": 12,
-  "last_link_id": 19,
+  "last_node_id": 13,
+  "last_link_id": 23,
   "nodes": [
+    {
+      "id": 9,
+      "type": "CombineAudioNode",
+      "pos": {
+        "0": 809,
+        "1": 234
+      },
+      "size": {
+        "0": 229.20001220703125,
+        "1": 46
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vocal",
+          "type": "AUDIO",
+          "link": 23
+        },
+        {
+          "name": "instrumental",
+          "type": "AUDIO",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            16
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CombineAudioNode"
+      }
+    },
+    {
+      "id": 3,
+      "type": "PreviewAudio",
+      "pos": {
+        "0": 897.6000366210938,
+        "1": 73.80000305175781
+      },
+      "size": {
+        "0": 315,
+        "1": 76
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewAudio"
+      },
+      "widgets_values": [
+        null
+      ]
+    },
+    {
+      "id": 11,
+      "type": "PreviewAudio",
+      "pos": {
+        "0": 898,
+        "1": 366
+      },
+      "size": {
+        "0": 315,
+        "1": 76
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 16
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewAudio"
+      },
+      "widgets_values": [
+        null
+      ]
+    },
+    {
+      "id": 7,
+      "type": "LoadAudio",
+      "pos": {
+        "0": 26,
+        "1": 511
+      },
+      "size": {
+        "0": 315,
+        "1": 124
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            9
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "title": "LoadAudio目标音色",
+      "properties": {
+        "Node name for S&R": "LoadAudio"
+      },
+      "widgets_values": [
+        "dingzhen_0.wav",
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "LoadAudio",
+      "pos": {
+        "0": 27,
+        "1": 151
+      },
+      "size": {
+        "0": 315,
+        "1": 124
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            1
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "title": "LoadAudio上传演讲",
+      "properties": {
+        "Node name for S&R": "LoadAudio"
+      },
+      "widgets_values": [
+        "s4p1.wav",
+        null,
+        ""
+      ]
+    },
     {
       "id": 1,
       "type": "VocalSeparationNode",
@@ -28,7 +199,8 @@
           "name": "vocals_AUDIO",
           "type": "AUDIO",
           "links": [
-            2
+            2,
+            21
           ],
           "slot_index": 0,
           "shape": 3
@@ -78,7 +250,7 @@
           "name": "vocals_AUDIO",
           "type": "AUDIO",
           "links": [
-            19
+            22
           ],
           "slot_index": 0,
           "shape": 3
@@ -103,35 +275,6 @@
       ]
     },
     {
-      "id": 3,
-      "type": "PreviewAudio",
-      "pos": {
-        "0": 897.6000366210938,
-        "1": 73.80000305175781
-      },
-      "size": {
-        "0": 315,
-        "1": 76
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "link": 2
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewAudio"
-      },
-      "widgets_values": [
-        null
-      ]
-    },
-    {
       "id": 10,
       "type": "PreviewAudio",
       "pos": {
@@ -143,7 +286,7 @@
         "1": 76
       },
       "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -161,141 +304,29 @@
       ]
     },
     {
-      "id": 7,
-      "type": "LoadAudio",
-      "pos": {
-        "0": 28,
-        "1": 388
-      },
-      "size": {
-        "0": 315,
-        "1": 124
-      },
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "AUDIO",
-          "type": "AUDIO",
-          "links": [
-            9
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadAudio"
-      },
-      "widgets_values": [
-        "s4p1.wav",
-        null,
-        ""
-      ]
-    },
-    {
-      "id": 2,
-      "type": "LoadAudio",
-      "pos": {
-        "0": 27,
-        "1": 151
-      },
-      "size": {
-        "0": 315,
-        "1": 124
-      },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "AUDIO",
-          "type": "AUDIO",
-          "links": [
-            1,
-            18
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadAudio"
-      },
-      "widgets_values": [
-        "dingzhen_0.wav",
-        null,
-        ""
-      ]
-    },
-    {
-      "id": 9,
-      "type": "CombineAudioNode",
-      "pos": {
-        "0": 809,
-        "1": 234
-      },
-      "size": {
-        "0": 229.20001220703125,
-        "1": 46
-      },
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "vocal",
-          "type": "AUDIO",
-          "link": 17
-        },
-        {
-          "name": "instrumental",
-          "type": "AUDIO",
-          "link": 14
-        }
-      ],
-      "outputs": [
-        {
-          "name": "AUDIO",
-          "type": "AUDIO",
-          "links": [
-            16
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CombineAudioNode"
-      }
-    },
-    {
-      "id": 12,
+      "id": 13,
       "type": "SeedVCNode",
       "pos": {
-        "0": 435,
-        "1": 256
+        "0": 426,
+        "1": 294
       },
       "size": {
         "0": 315,
-        "1": 174
+        "1": 150
       },
       "flags": {},
-      "order": 4,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
           "name": "source",
           "type": "AUDIO",
-          "link": 18
+          "link": 21
         },
         {
           "name": "target",
           "type": "AUDIO",
-          "link": 19
+          "link": 22
         }
       ],
       "outputs": [
@@ -303,50 +334,20 @@
           "name": "AUDIO",
           "type": "AUDIO",
           "links": [
-            17
+            23
           ],
-          "slot_index": 0,
-          "shape": 3
+          "shape": 3,
+          "slot_index": 0
         }
       ],
       "properties": {
         "Node name for S&R": "SeedVCNode"
       },
       "widgets_values": [
-        "cosyvoice",
-        10,
+        50,
         1,
         0.7,
         3
-      ]
-    },
-    {
-      "id": 11,
-      "type": "PreviewAudio",
-      "pos": {
-        "0": 898,
-        "1": 366
-      },
-      "size": {
-        "0": 315,
-        "1": 76
-      },
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "link": 16
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewAudio"
-      },
-      "widgets_values": [
-        null
       ]
     }
   ],
@@ -400,27 +401,27 @@
       "AUDIO"
     ],
     [
-      17,
-      12,
+      21,
+      1,
+      0,
+      13,
+      0,
+      "AUDIO"
+    ],
+    [
+      22,
+      8,
+      0,
+      13,
+      1,
+      "AUDIO"
+    ],
+    [
+      23,
+      13,
       0,
       9,
       0,
-      "AUDIO"
-    ],
-    [
-      18,
-      2,
-      0,
-      12,
-      0,
-      "AUDIO"
-    ],
-    [
-      19,
-      8,
-      0,
-      12,
-      1,
       "AUDIO"
     ]
   ],
@@ -430,8 +431,8 @@
     "ds": {
       "scale": 1,
       "offset": [
-        0,
-        0
+        88,
+        -12.79998779296875
       ]
     }
   },

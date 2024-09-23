@@ -3,8 +3,9 @@ from pathlib import Path
 import argbind
 from audiotools import ml
 
-from ..model import DAC
+import dac
 
+DAC = dac.model.DAC
 Accelerator = ml.Accelerator
 
 __MODEL_LATEST_TAGS__ = {
