@@ -2,11 +2,14 @@
 a custom node for [seed-vc](https://github.com/Plachtaa/seed-vc),you can find [workflow](./doc)
 
 ## Update
+- 2024-09-22:
+    - Updated singing voice conversion model to use BigVGAN from NVIDIA, providing large improvement to high-pitched singing voices
 - 2024.9.18 sing vc 
 
 ## 教程
 - [Demo](https://b23.tv/IfDHZ9w)
-- [一键包](https://b23.tv/QFgmoXM)
+- [镜像](https://www.xiangongyun.com/image/detail/f19243de-f62b-435e-96fc-ce29acbedd85)
+- [一键包](https://b23.tv/2Uj8QHD)
 
 ## Example
 |source|reference|output|
