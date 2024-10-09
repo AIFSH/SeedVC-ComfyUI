@@ -1,0 +1,15 @@
+[project]
+name = "seedvc-comfyui"
+description = "a custom node for [a/seed-vc](https://github.com/Plachtaa/seed-vc)"
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["scipy==1.13.1", "onnxruntime-gpu==1.19.0", "librosa==0.10.2", "huggingface-hub", "munch", "einops", "descript-audio-codec", "git+https://github.com/openai/whisper.git"]
+
+[project.urls]
+Repository = "https://github.com/AIFSH/SeedVC-ComfyUI"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "SeedVC-ComfyUI"
+Icon = ""
