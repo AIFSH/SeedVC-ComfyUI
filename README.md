@@ -2,6 +2,8 @@
 a custom node for [seed-vc](https://github.com/Plachtaa/seed-vc),you can find [workflow](./doc)
 
 ## Update
+- 2024-10-28:
+    - Updated fine-tuned 44k singing voice conversion model with better audio quality
 - 2024-10-24:
     - Updated v0.3 pretrained model, changed speech content encoder to OpenAI Whisper
 - 2024-09-22:
