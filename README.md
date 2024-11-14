@@ -14,7 +14,8 @@ a custom node for [seed-vc](https://github.com/Plachtaa/seed-vc),you can find [w
 - [Demo](https://b23.tv/IfDHZ9w)
 - [镜像](https://www.xiangongyun.com/image/detail/f19243de-f62b-435e-96fc-ce29acbedd85)
 - [一键包](https://b23.tv/2Uj8QHD)
-
+## Disclaimer / 免责声明
+We do not hold any responsibility for any illegal usage of the codebase. Please refer to your local laws about DMCA and other related laws. 我们不对代码库的任何非法使用承担任何责任. 请参阅您当地关于 DMCA (数字千年法案) 和其他相关法律法规.
 ## Example
 |source|reference|output|
 |--|--|--|
